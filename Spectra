@@ -1,9 +1,14 @@
-AI를 활용한 디자인 및 생산
+[AI를 활용한 디자인 및 생산]
 
 https://www.thedatahunt.com/trend-insight/ai-in-manufacturing
 
+로봇 프로세스 자동화(RPA(Robotic Process Automation))
+https://www.uipath.com/resources/automation-case-studies/clariant
 
-기업 AI 시스템 적용 방안
+참고자료 : https://www.micube.co.kr/manufacturingai?utm_source=google&utm_medium=cpc&utm_campaign=ads_ai&utm_term=ai%20%EC%A0%9C%EC%A1%B0&gad_source=1&gclid=CjwKCAiA6KWvBhAREiwAFPZM7opT1C0GDVwJ9TnKTGg6qpqdp4Iyb9Ld2kv5EVuRuhE8o_em1Cb4bRoCr3UQAvD_BwE
+소비자와 자연어로 대화하고 선호도에 따라 제품 추천을 제공하는 가상 에이전트를 구축할 수 있다. 
+
+[기업 AI 시스템 적용 방안]
 
 1. 제조 부문
  - 최신트렌드 디자인 제안
@@ -25,12 +30,9 @@ https://www.thedatahunt.com/trend-insight/ai-in-manufacturing
  - 상품배너 이미지
 
 2. 유통 부문 
- - 판매 데이터 시장동향 파악 분석(타 제품 포함)
- - 주문 패턴, 공급망 이슈, 생산 지연 정보 분석 
- => 유통 문제 개선점 정보 안내
-
-참고자료 : https://www.micube.co.kr/manufacturingai?utm_source=google&utm_medium=cpc&utm_campaign=ads_ai&utm_term=ai%20%EC%A0%9C%EC%A1%B0&gad_source=1&gclid=CjwKCAiA6KWvBhAREiwAFPZM7opT1C0GDVwJ9TnKTGg6qpqdp4Iyb9Ld2kv5EVuRuhE8o_em1Cb4bRoCr3UQAvD_BwE
-소비자와 자연어로 대화하고 선호도에 따라 제품 추천을 제공하는 가상 에이전트를 구축할 수 있다. 
+ 1) 유통개선 시스템
+  - 주문 패턴, 공급망 이슈, 생산 지연 정보 분석 
+   => 유통 문제 개선점 정보 안내
 
 3. 운영 부분
  1) 고객센터 자동 챗봇 
@@ -41,24 +43,13 @@ https://www.thedatahunt.com/trend-insight/ai-in-manufacturing
   - 판매 통계 : 국가별(국내,해외), 지역별, 타입별(온오프라인), 종류별(제품종류)  
   - 제품 사용 후기 분석(크롤링) 후 제품에 대한 키워드 추출, 제품 선호도 조사
   
-=> SNS 및 Blog Homepage 등의 마케팅 실행
 
-로봇 프로세스 자동화(RPA(Robotic Process Automation))
-https://www.uipath.com/resources/automation-case-studies/clariant
-
-인공지능 통합 플랫폼 시스템 개요
+[인공지능 통합 플랫폼 시스템 개요]
 
 인공지능 통합 플랫폼은 기업의 기존시스템에 상호 보완할 수 있는 인터페이스를 설계 및 개발하고
 데이터 전처리 과정을 거치고 모델를 학습시켜 커스터마이징된 기업용 통합시스템을 개발합니다.
 
 구조
-기존 시스템(제조,유통,운영) => 데이터 수집 => 인터페이스 => 데이터 전처리 => 학습 표준모델 및 알고리즘 개발 => 기업용 통합시스템 개발
-
-인터페이스 개발 구조
-
-
-
-
-
+기존 시스템(제조,유통,운영) 데이터 수집 => 인터페이스 개발 => 데이터 전처리 => 학습 표준모델 및 알고리즘 개발 => 기업용 통합시스템 개발
 
  
