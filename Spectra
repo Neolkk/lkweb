@@ -34,21 +34,17 @@ https://www.thedatahunt.com/trend-insight/ai-in-manufacturing
 
 3. 운영 부분
  1) 고객센터 자동 챗봇 
-  - 고객지원 부분의 데이터를 수집 및 가공 챗봇 학습
-  - 기본적인 상담 및 고객의 현재 상황에 따른 제품 추천, 
- 2) 마케팅 판매 분석 통계 - 마케팅으로 인한 판매 추적
-  - 제품 사용 후기 분석 
-  => SNS 및 Blog Homepage 등의 마케팅 실행
- 
-
+  - 고객지원 부분의 데이터를 수집 및 가공 챗봇 학습(기본 응답학습, 제품 학습, AS 대처 학습)
+  - 기본 상담, 제품 소개, 제품 추천, AS상담
+ 2) 판매 분석 시스템
+  - ERP의 판매 데이터 및 기타 자료를 통하여 데이터 분석
+  - 판매 통계 : 국가별(국내,해외), 지역별, 타입별(온오프라인), 종류별(제품종류)  
+  - 제품 사용 후기 분석(크롤링) 후 제품에 대한 키워드 추출, 제품 선호도 조사
+  
+=> SNS 및 Blog Homepage 등의 마케팅 실행
 
 로봇 프로세스 자동화(RPA(Robotic Process Automation))
-
 https://www.uipath.com/resources/automation-case-studies/clariant
-데이터
- - 제품 사용 후기
- - 판매 분석 통계 (나라별, 지역별)
- 
 
 인공지능 통합 플랫폼 시스템 개요
 
