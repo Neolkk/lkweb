@@ -8,3 +8,77 @@ emax 개발 방법론
  - https://www.trizesolutions.co.kr/%EC%9E%90%EC%82%B0-%EC%86%94%EB%A3%A8%EC%85%98/%EC%98%A8%EB%9D%BC%EC%9D%B8%EA%B0%9C%EB%B0%9C
 
 https://hellokyo.tistory.com/20
+
+
+### **주간 보안 점검 및 조치 항목 (Java 웹서버 + C# 보안 클라이언트 구성)**  
+
+#### **1. 웹서버(Spring + Vue) 및 API 서버 보안 점검**
+✅ **인증 및 접근 제어**  
+- 사용자 및 관리자 로그인 실패 횟수 로그 점검  
+- JWT 토큰 또는 세션 타임아웃 설정 확인  
+- 관리자 페이지 접근 권한 체크 (예: `/admin` 경로 보안)  
+- API 요청 로그 점검 (비정상 요청 감지)  
+
+✅ **취약점 점검 및 패치**  
+- Java 및 Spring Boot, Vue 라이브러리 보안 업데이트 (`mvn dependency:check`)  
+- 최신 보안 패치 적용 (`yum update` 또는 `apt upgrade`)  
+- 사용 중인 오픈소스 라이브러리의 CVE(보안 취약점) 점검 ([Snyk](https://snyk.io/), `OWASP Dependency Check`)  
+
+✅ **서버 및 로그 점검**  
+- **일별** Kubernetes Cluster Workloads CPU 및 Memory 점검  
+- `auth.log`, `secure.log`, `nginx/access.log`에서 의심스러운 접근 탐지  
+- DB 접근 로그 점검 (예: 관리자 계정이 아닌 비정상 쿼리 확인)  
+
+✅ **데이터 보안**  
+- DB 내 PII(개인정보) 데이터 암호화 여부 확인 (AES, SHA-256)  
+- 비밀번호 저장 정책 점검 (`BCrypt`, `PBKDF2` 적용 확인)  
+- API 응답에 민감한 정보 노출 여부 확인 (`json` 응답 필터링)  
+
+---
+
+#### **2. C# 보안 클라이언트(카메라 활용) 점검**
+✅ **네트워크 및 암호화**  
+- 클라이언트 ↔ 서버 통신 시 TLS 1.2/1.3 강제 적용 여부 확인  
+- 네트워크 패킷 스니핑 테스트 (Wireshark 활용하여 카메라 영상 데이터 노출 여부 점검)  
+- API 호출 시 HMAC 또는 전자서명 적용 여부 확인  
+
+✅ **파일 및 로그 관리**  
+- 로컬 저장된 카메라 영상 파일 무결성 체크 (SHA256 해시 비교)  
+- 보안 로그(`EventViewer`, `C:\ProgramData\...` 등)에서 오류 및 해킹 시도 탐지  
+- 로그가 너무 오래 남아 있는지 점검 및 자동 삭제 스케줄 설정  
+
+✅ **클라이언트 실행 및 보호**  
+- 실행 파일 무결성 점검 (코드 서명 확인 `signtool verify`)  
+- 강제 종료 및 디버깅 방어 (`ProcessMonitor` 및 `DebuggerDetection` 적용 여부 점검)  
+- 보안 클라이언트가 악성코드(백도어)로 악용될 가능성 체크 (Antivirus, YARA 스캔)  
+
+---
+
+#### **3. 인프라 및 네트워크 보안 점검**
+✅ **서버 접근 제어**  
+- SSH 및 원격 접속 로그 점검 (`/var/log/auth.log`)  
+- 불필요한 포트 개방 여부 확인 (`netstat -tulnp`, `nmap`)  
+- 방화벽 및 보안 그룹 정책 검토 (`iptables`, `AWS Security Groups`)  
+
+✅ **백업 및 장애 대응 테스트**  
+- DB 및 주요 로그 백업 점검 (`mysqldump`, `pg_dump`)  
+- 장애 발생 시 복구 테스트 (Docker 컨테이너 재시작, DB 복원 시나리오)  
+
+✅ **DDoS 및 공격 탐지**  
+- Nginx 또는 WAF 로그에서 비정상 요청 탐지  
+- 과도한 API 요청 감지 (예: `rate limiting` 적용 확인)  
+- IP 차단 설정 확인 (`fail2ban`, `CSF`)  
+
+---
+
+#### **4. 자동화 및 점검 로그 관리**
+✅ **자동화 및 알림 시스템 적용**  
+- 보안 점검 스크립트(Cron Job) 실행 및 로그 정리  
+- 주요 이벤트 발생 시 Slack 또는 Email 알림 (`Prometheus`, `ELK`, `Grafana`)  
+- 주간 점검 보고서 생성 및 공유  
+
+✅ **점검 결과 로그 보관 및 분석**  
+- 주간 보안 점검 내역 문서화 (Google Docs, Confluence 등 활용)  
+- 장기적인 패턴 분석을 위해 로그 보관 (ElasticSearch, Kibana 활용)  
+
+이 정도면 주간 보안 점검 및 조치 사항을 체계적으로 정리할 수 있습니다. 특정 부분을 더 강화하고 싶다면 추가 조치할 부분을 말해 주세요! 🚀
