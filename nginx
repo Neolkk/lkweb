@@ -1,0 +1,58 @@
+# NGINX
+http://nginx.org/download/nginx-1.24.0.tar.gz
+
+tar zxvf nginx-1.24.0.tar.gz
+cd nginx-1.24.0
+
+
+src/http/ngx_http_header_filter_module.c
+
+static u_char ngx_http_server_string[] = "Server: nginx" CRLF;
+
+static u_char ngx_http_server_string[] = "" CRLF;
+
+
+
+nginx -V
+
+--prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf ...
+
+
+# Ubuntu
+sudo apt install build-essential libpcre3 libpcre3-dev zlib1g-dev libssl-dev
+
+# CentOS
+sudo yum install gcc pcre-devel zlib-devel openssl-devel make
+
+./configure --prefix=/etc/nginx \
+            --sbin-path=/usr/sbin/nginx \
+            --conf-path=/etc/nginx/nginx.conf \
+            --error-log-path=/var/log/nginx/error.log \
+            --http-log-path=/var/log/nginx/access.log \
+            --with-http_ssl_module
+
+make
+
+tar czvf nginx-compiled.tar.gz objs/nginx
+
+
+
+sudo systemctl stop nginx
+
+# 기존 백업
+sudo cp /usr/sbin/nginx /usr/sbin/nginx.bak
+
+# 새 실행파일 덮어쓰기
+sudo cp nginx-compiled/nginx /usr/sbin/nginx
+sudo chmod +x /usr/sbin/nginx
+
+# 설정 테스트
+sudo nginx -t
+
+# 재시작
+sudo systemctl start nginx
+
+
+
+
+
