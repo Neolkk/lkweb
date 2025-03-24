@@ -1,3 +1,6 @@
+/*===============================
+          Nginx 업그레이드
+================================*/
 # NGINX
 http://nginx.org/download/nginx-1.24.0.tar.gz
 
@@ -58,6 +61,168 @@ sudo nginx -t
 
 # 재시작
 sudo systemctl start nginx
+
+
+
+
+
+/*===============================
+          nginx 보안조치
+================================*/
+---
+## ✅ **1. 서버 정보 노출 차단 (서버 버전 숨기기)**
+### 🔒 목적: HTTP 헤더 또는 에러 페이지에서 Nginx 버전 노출 차단
+
+```nginx
+# nginx.conf (http 블록 내부)
+server_tokens off;
+```
+
+- 적용 효과: `Server: nginx/1.14.1` → `Server: nginx`
+- 에러 페이지에서 버전 노출도 차단됨
+
+---
+
+## ✅ **2. 에러 페이지 커스터마이징 (디폴트 메시지 제거)**
+### 🔒 목적: Nginx 기본 에러 메시지를 통한 정보 노출 방지
+
+```nginx
+# nginx.conf 또는 server 블록
+error_page 404 /custom_404.html;
+error_page 500 502 503 504 /custom_50x.html;
+
+location = /custom_404.html {
+    root /etc/nginx/html;
+    internal;
+}
+location = /custom_50x.html {
+    root /etc/nginx/html;
+    internal;
+}
+```
+
+- `/etc/nginx/html/` 폴더에 적절한 사용자 정의 에러 페이지 파일 생성 필요
+
+---
+
+## ✅ **3. 디폴트 설정 제거 (`autoindex`, 디렉토리 노출 차단)**
+### 🔒 목적: 파일 목록 자동 노출 방지
+
+```nginx
+# 모든 location 블록 또는 server 블록 내에 삽입
+autoindex off;
+```
+
+---
+
+## ✅ **4. 로그 정보 최소화 또는 헤더 마스킹**
+### 🔒 목적: 민감 정보가 access/error 로그에 남지 않도록 설정
+
+```nginx
+# nginx.conf (log_format을 간결하게)
+log_format minimal '$remote_addr - $remote_user [$time_local] '
+                   '"$request" $status $body_bytes_sent '
+                   '"$http_user_agent"';
+
+access_log /var/log/nginx/access.log minimal;
+```
+
+🚫 `referer`, `cookie`, `authorization`, 사용자 정의 헤더 등은 포함하지 않도록 관리
+
+---
+
+## ✅ **5. 요청 크기 제한 (DoS 방어)**
+```nginx
+# nginx.conf (http 블록)
+client_max_body_size 2M;
+```
+- 클라이언트가 너무 큰 파일을 보내거나 공격 시도를 막기 위한 설정
+
+---
+
+## ✅ **6. 버퍼 사이즈 제한 (HTTP Header Flood 방어)**
+```nginx
+# nginx.conf (http 또는 server 블록)
+client_body_buffer_size 16k;
+client_header_buffer_size 1k;
+large_client_header_buffers 2 4k;
+```
+- 비정상적인 대용량 요청을 방어할 수 있음
+
+---
+
+## ✅ **7. 허용된 메서드 제한**
+### 🔒 목적: 사용하지 않는 메서드(GET, POST 외) 차단
+
+```nginx
+location / {
+    limit_except GET POST {
+        deny all;
+    }
+
+    proxy_pass http://was.internal.com;
+}
+```
+
+---
+
+## ✅ **8. SSL/TLS 관련 (HTTPS 사용 중이라면 필수)**
+HTTPS 환경이라면 다음도 필수 조치입니다:
+
+```nginx
+ssl_protocols TLSv1.2 TLSv1.3;  # TLS 1.0/1.1 사용 금지
+ssl_prefer_server_ciphers on;
+ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+```
+
+---
+
+## ✅ **9. Referrer Policy 등 보안 헤더 추가 (선택)**
+```nginx
+add_header X-Content-Type-Options nosniff always;
+add_header X-Frame-Options SAMEORIGIN always;
+add_header X-XSS-Protection "1; mode=block" always;
+```
+
+---
+
+## ✅ **10. 디버깅 정보 노출 차단**
+**확인 사항:**  
+- `debug` 옵션이 설정되어 있지 않은지 확인 (`error_log` 또는 `access_log`)
+- `if ($args ~ debug)` 같은 URL 트리거 디버깅 코드 제거
+
+---
+
+## 🧠 **보안 설정 적용 후 점검**
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+---
+
+## 🚨 주의: Nginx 1.14.1은 오래된 버전!
+- **이미 알려진 취약점(CVE)이 존재함** (예: request smuggling, buffer overflow 등)
+- 사내 정책에 따라 가능하다면 **1.18 또는 1.22 LTS 버전 이상으로 업그레이드 권장**
+
+---
+
+## ✅ 정리: 즉시 적용할 보안 조치 목록
+
+| 구분 | 조치 내용 |
+|------|----------|
+| 정보 노출 차단 | `server_tokens off`, 에러 페이지 커스터마이징 |
+| 디렉토리 보호 | `autoindex off` |
+| 로그 보안 | `log_format` 단순화, 민감 정보 제거 |
+| 요청 제한 | `client_max_body_size`, 헤더 버퍼 제한 |
+| 메서드 제한 | `limit_except GET POST` |
+| SSL 강화 | `ssl_protocols`, `ssl_ciphers` (HTTPS 적용 시) |
+| 보안 헤더 | `X-Frame-Options`, `X-Content-Type-Options` 등 |
+| 디버그 제거 | `debug` 로그 및 디버깅 트리거 제거 |
+
+---
+추가로 **취약점 스캔 도구(nikto, Nessus 등
+
 
 
 
