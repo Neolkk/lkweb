@@ -226,5 +226,61 @@ sudo systemctl reload nginx
 
 
 
+sudo vi /etc/nginx/includes/proxy_cache_security.conf
 
+
+# proxy_cache 보안 설정 (공통)
+
+# 프록시 서버가 응답한 헤더로 인한 캐시 분기 방지
+proxy_hide_header Vary;
+proxy_ignore_headers Expires Cache-Control;
+
+# Host 헤더 고정
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-Host $host;
+
+# 쿠키 있는 요청은 캐시 안 함
+proxy_no_cache $cookie_session;
+proxy_cache_bypass $cookie_session;
+
+# 캐시 키 단순화
+proxy_cache_key "$scheme$host$request_uri";
+
+# 오염된 캐시 오래 유지되지 않도록 만료 강제
+proxy_cache_valid 200 302 10m;
+proxy_cache_valid 404 1m;
+
+# 캐시 상태를 응답 헤더로 확인할 수 있게
+add_header X-Cache-Status $upstream_cache_status;
+
+# (선택) 캐시 영역 설정 (nginx.conf 쪽 http {} 블록에 선언)
+# proxy_cache my_cache;  <= 이건 server 블록에서 선언하거나, 미리 선언 필요
+
+
+
+nginx.conf
+http {
+    ...
+
+    # 캐시 저장소 정의 (10MB 메모리 zone, 10분 비활성시 삭제)
+    proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m inactive=10m use_temp_path=off;
+}
+
+
+
+server 블록
+server {
+    listen 80;
+    server_name site1.example.com;
+
+    location / {
+        proxy_pass http://backend1;
+        proxy_cache my_cache;
+
+        include /etc/nginx/includes/proxy_cache_security.conf;
+    }
+}
+
+sudo nginx -t
+sudo systemctl reload nginx
 
