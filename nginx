@@ -284,3 +284,98 @@ server {
 sudo nginx -t
 sudo systemctl reload nginx
 
+
+
+
+
+**[NGINX 보안 조치 및 업그레이드 정리 문서]**
+
+**1. 목적 및 개요**
+기존 운영 중인 NGINX 1.14.1은 보안 취약점(CVE) 및 정보 노출 가능성이 존재하여, 이를 개선하고자 최신 안정 버전(NGINX 1.24.0)으로 업그레이드하고, 실무 수준의 보안 설정을 적용함.
+
+---
+
+**2. 업그레이드 내용 요약**
+- 기존 버전: NGINX 1.14.1 (패키지 설치 기반)
+- 업그레이드 버전: NGINX 1.24.0 (소스 직접 컴파일)
+- 업그레이드 방식: 폐쇄망 환경에서 소스 수정 및 내부 재컴파일 후 `/usr/sbin/nginx` 교체
+
+---
+
+**3. 주요 적용 보안 설정**
+
+**[1] 버전/서버 정보 노출 차단**
+- `server_tokens off;` 설정으로 버전 숨김
+- NGINX 소스 코드 내 `ngx_http_header_filter_module.c` 수정으로 `Server` 헤더 제거 (`"Server: nginx"` → 제거)
+
+**[2] 보안 헤더 추가**
+```nginx
+add_header X-Content-Type-Options nosniff always;
+add_header X-Frame-Options SAMEORIGIN always;
+add_header X-XSS-Protection "1; mode=block" always;
+```
+
+**[3] 디렉토리 자동 인덱싱 차단**
+```nginx
+autoindex off;
+```
+
+**[4] 요청 크기 및 버퍼 제한 설정 (DoS 방어)**
+```nginx
+client_max_body_size 2M;
+client_body_buffer_size 16k;
+client_header_buffer_size 1k;
+large_client_header_buffers 2 4k;
+```
+
+**[5] 사용하지 않는 HTTP 메서드 제한**
+```nginx
+limit_except GET POST {
+    deny all;
+}
+```
+
+**[6] 캐시 오염 방지 설정 (Reverse Proxy Cache Hardening)**
+- 모든 프록시 서버에 공통 보안 캐시 설정 적용 (proxy_cache 보안 분리 파일로 관리)
+```nginx
+proxy_cache_key "$scheme$host$request_uri";
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-Host $host;
+proxy_hide_header Vary;
+proxy_ignore_headers Expires Cache-Control;
+proxy_no_cache $cookie_session;
+proxy_cache_bypass $cookie_session;
+proxy_cache_valid 200 302 10m;
+proxy_cache_valid 404 1m;
+add_header X-Cache-Status $upstream_cache_status;
+```
+- 공통 설정을 `/etc/nginx/includes/proxy_cache_security.conf` 로 분리하여 `include` 방식으로 각 `server/location`에 일괄 적용
+- `proxy_cache_path`는 nginx.conf 의 `http` 블록에 정의:
+```nginx
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m inactive=10m use_temp_path=off;
+```
+
+---
+
+**4. 보안 취약점(CVE) 대응 사항 정리**
+
+| CVE 번호 | 설명 | 영향 여부 | 조치 내역 |
+|----------|------|------------|------------|
+| CVE-2019-20372 | LDAP 인증 우회 (nginx-ldap-auth daemon 사용 시) | 영향 없음 (미사용) | LDAP 인증 미사용 또는 최신 ldap-auth 적용 |
+| CVE-2021-23017 | DNS 처리 RCE 취약점 (1.20.1 미만) | 영향 없음 | 1.24.0 업그레이드로 자동 해결 |
+
+---
+
+**5. 기타**
+- `nginx -V` 기준 기존 설정 옵션 그대로 유지하여 설정 호환성 확보
+- 정적 모듈(`http_sub_module`, `http_ssl_module`, `http_stub_status_module`) 포함 빌드
+- 동적 모듈 중 불필요한 `.so` 파일 제거 또는 비활성화 처리 (예: `perl`, `xslt`, `image_filter` 등)
+
+---
+
+**6. 결론 및 운영 가이드**
+- 현재 버전은 최신 안정 버전(1.24.0) 기준으로 모든 심각도 높은 CVE 취약점 패치 포함됨
+- 보안 헤더, 캐시 하드닝, 정보 노출 차단 등을 적용하여 운영 중
+- 향후 보안 점검 시, 해당 항목 적용 여부 체크리스트로 활용 가능
+
+
